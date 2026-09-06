@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>具身智能 · 研究图谱（VLA / 世界模型 / 具身 Agent）</title>
-<link rel="stylesheet" href="styles.css?v=20260906h">
+<link rel="stylesheet" href="styles.css?v=20260906n">
 </head>
 <body>
 <div id="app">
@@ -37,6 +37,28 @@
     </div>
   </div>
 
+  <div id="submit-overlay" class="overlay hidden">
+    <div class="overlay-panel narrow">
+      <div class="overlay-head">
+        <h2>📮 求收录论文</h2>
+        <button class="close-btn" data-close>✕</button>
+      </div>
+      <div class="submit-body">
+        <p class="sub-hint">搜不到想要的工作？在这里提交，我们会核实后收录进对应的研究方向。<b>arXiv 链接最容易被处理</b>；也可以推荐你自己或他人的工作。</p>
+        <label>论文标题或 arXiv 链接 <i>*</i></label>
+        <input id="sub-paper" type="text" placeholder="如：https://arxiv.org/abs/2608.27033 或论文英文标题">
+        <label>建议归属方向</label>
+        <select id="sub-diff"></select>
+        <label>推荐理由（一句话，可选）</label>
+        <input id="sub-reason" type="text" placeholder="如：首个触觉原生的世界-动作模型">
+        <label>你的称呼 / 主页（可选，用于致谢）</label>
+        <input id="sub-user" type="text" placeholder="可留空">
+        <button id="sub-send" class="tool-btn primary" style="width:100%;margin-top:6px">提交求收录</button>
+        <div id="sub-status" class="sub-status"></div>
+      </div>
+    </div>
+  </div>
+
   <div id="about-overlay" class="overlay hidden">
     <div class="overlay-panel narrow">
       <div class="overlay-head">
@@ -57,6 +79,6 @@
 <script src="data3.js?v=20260906k"></script>
 <script src="data4.js?v=20260906k"></script>
 <script src="citations.js?v=2"></script>
-<script src="app.js?v=20260906l"></script>
+<script src="app.js?v=20260906n"></script>
 </body>
 </html>

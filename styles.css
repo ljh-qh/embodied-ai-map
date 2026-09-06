@@ -383,6 +383,22 @@ body {
 .about-body a { color: var(--accent); }
 .about-body b { color: var(--ink); }
 
+/* ── 求收录表单 ── */
+.submit-body { display: flex; flex-direction: column; gap: 6px; }
+.sub-hint { font-size: 12.5px; color: var(--ink-2); margin-bottom: 8px; line-height: 1.6; }
+.sub-hint b { color: var(--ink); }
+.submit-body label { font-size: 12px; font-weight: 700; color: var(--ink-2); margin-top: 6px; }
+.submit-body label i { color: #c0504d; font-style: normal; }
+.submit-body input, .submit-body select {
+  padding: 9px 12px; font-size: 13.5px; border-radius: 10px;
+  border: 1.5px solid var(--line); background: var(--card); color: var(--ink); outline: none; font-family: inherit;
+}
+.submit-body input:focus, .submit-body select:focus { border-color: var(--accent); }
+.sub-status { font-size: 12.5px; margin-top: 8px; line-height: 1.6; min-height: 18px; }
+.sub-status.ok { color: #2e6b40; }
+.sub-status.warn { color: #8a5a1d; }
+.sub-status a { color: var(--accent); font-weight: 700; }
+
 /* ── Mobile ─────────────────────────── */
 @media (max-width: 760px) {
   #topbar { padding: 12px 16px; }

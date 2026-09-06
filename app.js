@@ -570,8 +570,81 @@
         <div class="sh-name">${esc(e.paper.name)} <span class="pc-year">${e.paper.year} · ${esc(e.paper.venue)}</span></div>
         <div class="sh-path">${esc(e.mod.name)} › ${esc(e.diff.name)}</div>
         <div class="sh-sum">${esc(e.paper.summary)}</div>
-      </div>`).join("") : `<div class="search-empty">没有找到匹配「${esc(q)}」的论文。</div>`;
+      </div>`).join("")
+      : `<div class="search-empty">没有找到匹配「${esc(q)}」的论文。<br><br>
+         <button class="tool-btn primary" id="search-sub-btn">📮 求收录「${esc(q.trim()).slice(0, 24)}」</button>
+         <div style="font-size:11.5px;color:var(--ink-3);margin-top:8px">提交后我们会核实并收录到对应研究方向</div></div>`;
+    const subBtn = $searchResults.querySelector("#search-sub-btn");
+    if (subBtn) subBtn.addEventListener("click", () => {
+      $searchOverlay.classList.add("hidden");
+      openSubmit(q.trim());
+    });
   }
+
+  /* ── 求收录（submissions） ── */
+  const $subOverlay = document.getElementById("submit-overlay");
+  const $subDiff = document.getElementById("sub-diff");
+  const $subStatus = document.getElementById("sub-status");
+  let lastQuery = "";
+
+  // 下拉：模块 › 难点
+  $subDiff.innerHTML = MODULES.map(m =>
+    m.difficulties.map(d => `<option value="${d.id}">${esc(m.name)} › ${esc(d.name)}</option>`).join("")
+  ).join("") + `<option value="">不确定 / 由我们判断</option>`;
+
+  function openSubmit(prefill) {
+    $subOverlay.classList.remove("hidden");
+    $subStatus.textContent = "";
+    if (prefill && /^https?:\/\/arxiv\.org\/abs\/[\d.]+/i.test(prefill)) {
+      document.getElementById("sub-paper").value = prefill;
+    } else if (prefill && /[a-z]/i.test(prefill) && prefill.length > 8) {
+      document.getElementById("sub-paper").value = prefill;
+    }
+    lastQuery = prefill || "";
+    document.getElementById("sub-paper").focus();
+  }
+
+  document.getElementById("sub-send").addEventListener("click", () => {
+    const paper = document.getElementById("sub-paper").value.trim();
+    const diff = $subDiff.value;
+    const reason = document.getElementById("sub-reason").value.trim();
+    const user = document.getElementById("sub-user").value.trim();
+    if (!paper || paper.length < 5) {
+      $subStatus.textContent = "⚠️ 请填写论文标题或 arXiv 链接";
+      $subStatus.className = "sub-status warn";
+      return;
+    }
+    const payload = { paper, diff: diff || null, reason, user, query: lastQuery, time: new Date().toISOString() };
+    $subStatus.textContent = "提交中…";
+    $subStatus.className = "sub-status";
+    // 优先 POST 到本地保存端点；失败则退化为 GitHub issue 链接引导
+    fetch("/api/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(r => {
+      if (!r.ok) throw new Error("save failed");
+      return r.json();
+    }).then(() => {
+      $subStatus.textContent = "✅ 已收到！我们会核实后收录（通常在下周一的更新中）。感谢贡献 🙏";
+      $subStatus.className = "sub-status ok";
+      document.getElementById("sub-paper").value = "";
+      document.getElementById("sub-reason").value = "";
+    }).catch(() => {
+      // 纯静态环境（GitHub Pages）：引导用户到 GitHub issue
+      const title = encodeURIComponent(`[求收录] ${paper}`);
+      const body = encodeURIComponent(`**论文**: ${paper}\n**建议方向**: ${diff || "由维护者判断"}\n**理由**: ${reason || "-"}\n**来自站内搜索**: ${lastQuery || "-"}\n**推荐人**: ${user || "-"}`);
+      $subStatus.innerHTML = `⚠️ 自动提交暂不可用，请 <a href="https://github.com/ljh-qh/embodied-ai-map/issues/new?title=${title}&body=${body}" target="_blank" rel="noopener">点这里发一个 GitHub Issue</a> 完成收录请求。`;
+      $subStatus.className = "sub-status warn";
+    });
+  });
+
+  // 顶栏也放入口（与搜索并列）
+  const subTop = document.createElement("button");
+  subTop.className = "tool-btn";
+  subTop.textContent = "📮 求收录";
+  subTop.addEventListener("click", () => openSubmit(""));
+  document.querySelector(".toolbar").insertBefore(subTop, document.getElementById("btn-about"));
 
   /* ── 事件绑定 ── */
   document.body.addEventListener("click", ev => {
