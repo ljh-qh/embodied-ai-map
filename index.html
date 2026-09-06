@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>具身智能 · 研究图谱（VLA / 世界模型 / 具身 Agent）</title>
+<link rel="stylesheet" href="styles.css?v=20260906h">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="brand">
+      <h1 id="page-title">具身智能 · 研究图谱</h1>
+      <div class="stats" id="global-stats"></div>
+    </div>
+    <div class="toolbar">
+      <button class="tool-btn" id="btn-search">🔍 搜索</button>
+      <button class="tool-btn" id="btn-timeline">🕰 年表</button>
+      <button class="tool-btn" id="btn-venues">🏟 顶会</button>
+      <button class="tool-btn" id="btn-rank">🏆 排行</button>
+      <button class="tool-btn" id="btn-about">ℹ️ 说明</button>
+      <button class="tool-btn primary" id="btn-home">⌂ 回到全景</button>
+    </div>
+  </header>
+
+  <nav id="breadcrumb"></nav>
+
+  <main id="view"></main>
+
+  <div id="search-overlay" class="overlay hidden">
+    <div class="overlay-panel">
+      <div class="overlay-head">
+        <input id="search-input" type="text" placeholder="搜索论文名 / 关键词 / 机构 / 会议…" autocomplete="off">
+        <button class="close-btn" data-close>✕</button>
+      </div>
+      <div id="search-results"></div>
+    </div>
+  </div>
+
+  <div id="about-overlay" class="overlay hidden">
+    <div class="overlay-panel narrow">
+      <div class="overlay-head">
+        <h2>关于本图谱</h2>
+        <button class="close-btn" data-close>✕</button>
+      </div>
+      <div class="about-body">
+        <p>本站以「模块 → 研究难点 → 代表论文」的三层结构，梳理具身智能（Embodied AI）的研究版图，覆盖 <b>VLA（视觉-语言-动作模型）</b>、<b>世界模型（WM）与世界-动作模型（WAM）</b>、感知与触觉、技能学习、规划、导航、具身记忆，以及评测与安全等元层议题。收录截至 2026 年 9 月的最新工作。</p>
+        <p>内环七个模块构成具身智能体的「感知—建模—决策—学习—规划—移动—记忆」闭环；外围四个元层模块（系统目标、评测、开放问题、安全）为整个闭环提供目标、标尺与边界。</p>
+        <p>每篇论文附三段卡：<b>目的</b>（解决什么问题）、<b>方法</b>（怎么做）、<b>贡献</b>（改变了什么），并尽量标注发表 venue 与原文链接。2026 年的最新方向（世界-动作模型 WAM、触觉智能、人形全身控制、VLA 推理时规模化等）均已单独收录。</p>
+        <p>格式与协同逻辑致敬 <a href="https://mmjtt.github.io/MultimodalMemory/#/" target="_blank" rel="noopener">多模态 Agent 长期记忆 · 研究图谱</a>。内容为人工梳理，难免疏漏，欢迎指正。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="data1.js?v=20260906k"></script>
+<script src="data2.js?v=20260906k"></script>
+<script src="data3.js?v=20260906k"></script>
+<script src="data4.js?v=20260906k"></script>
+<script src="citations.js?v=2"></script>
+<script src="app.js?v=20260906l"></script>
+</body>
+</html>
