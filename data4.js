@@ -112,7 +112,17 @@ window.EAI_MODULES.push({
           contribution: "双臂 VLA（RDT、π0 类）的主流新兴评测场。" },
         {"id": "vlaarena", "name": "VLA-Arena", "title": "VLA-Arena: An Open-Source Framework for Benchmarking Vision-Language-Action Models", "year": 2026, "venue": "ICML 2026", "status": "已发表", "url": "https://arxiv.org/abs/2512.22539", "summary": "170 任务四维度三档难度的开源 VLA 基准与榜单。", "purpose": "VLA 评测碎片化，泛化/接地/安全缺统一标尺。", "method": "沿任务结构、语言指令、视觉观测三轴系统化构造基准与排行榜。", "contribution": "ICML 2026 VLA 评测基建，暴露主流模型短板。"},
         {"id": "cebench", "name": "CEBench", "title": "Rethinking the Practicality of Vision-Language-Action Model: A Comprehensive Benchmark and An Improved Baseline", "year": 2026, "venue": "ICRA 2026", "status": "已发表", "url": "https://arxiv.org/abs/2602.22663", "summary": "VLA 实用性基准：参数规模、预训练开销、本体适配三问。", "purpose": "学术 VLA 与可部署 VLA 之间的实用性鸿沟缺量化。", "method": "覆盖仿真+真机、多本体的综合基准并提出实用改进基线。", "contribution": "ICRA 2026「实用性」维度的系统追问（接 MINERVA 批判线）。"},
-        {"id": "wanderland", "name": "Wanderland", "title": "Wanderland: Geometrically Grounded Simulation for Open-World Embodied AI", "year": 2026, "venue": "CVPR 2026", "status": "已发表", "url": "https://arxiv.org/abs/2511.20620", "summary": "视频-3DGS 开放世界城市仿真：几何接地的可复现闭环评测。", "purpose": "开放世界具身评测缺高保真可交互环境。", "method": "视频-3DGS 重建城市级环境，照片级渲染 + 几何接地交互。", "contribution": "CVPR 2026 开放世界评测基建。"}
+        {"id": "wanderland", "name": "Wanderland", "title": "Wanderland: Geometrically Grounded Simulation for Open-World Embodied AI", "year": 2026, "venue": "CVPR 2026", "status": "已发表", "url": "https://arxiv.org/abs/2511.20620", "summary": "视频-3DGS 开放世界城市仿真：几何接地的可复现闭环评测。", "purpose": "开放世界具身评测缺高保真可交互环境。", "method": "视频-3DGS 重建城市级环境，照片级渲染 + 几何接地交互。", "contribution": "CVPR 2026 开放世界评测基建。"},
+        { id: "robospa", name: "RoboSPA", title: "RoboSPA: Can VLA Models Go Beyond Simple Scenes and Short-Horizon Tasks?", year: 2026, venue: "EMNLP 2026", status: "已发表", url: "https://arxiv.org/abs/2609.05324",
+          summary: "细粒度空间推理 × 长程程序规划双维度的大规模 VLA 诊断基准。",
+          purpose: "现有基准只测预设设定下的任务完成率，看不出模型在空间歧义与流程复杂度上升时如何失效。",
+          method: "10 任务类 56 基础任务按五档难度实例化为 280 变体，采集 52.7 万条多本体轨迹构建 RoboSPA 数据集并系统诊断主流 VLA。",
+          contribution: "EMNLP 2026 主会接收；给出「空间-程序」双轴失效画像，LIBERO 近满分之后下一阶段的评测标尺。" },
+        { id: "liberorecover", name: "LIBERO-RECOVER", title: "LIBERO-RECOVER: Beyond Task Success Towards Failure Recovery in Robotic Manipulation Models", year: 2026, venue: "arXiv 2026.09 (大连理工等)", status: "预印本", url: "https://arxiv.org/abs/2609.05178",
+          summary: "把「失败后能否恢复」变成一等评测维度：从完成率转向可靠性。",
+          purpose: "LIBERO 上 SOTA 已近 100% 成功，但预设初始状态下的成功不等于真实鲁棒——抓空、碰撞、物体被碰跑后的恢复能力从未被度量。",
+          method: "在 LIBERO 之上系统注入抓取失败、碰撞、物体位移等扰动，构造评测恢复能力的协议并衡量主流 VLA/WAM。",
+          contribution: "直指「基准饱和」后的评测空档，与 RoboSPA 一同推动评测从成功率转向过程可靠性。" }
       ]
     },
     {

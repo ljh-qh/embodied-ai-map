@@ -189,7 +189,12 @@ window.EAI_MODULES.push({
         {"id": "dotsim", "name": "DOT-Sim", "title": "DOT-Sim: Differentiable Optical Tactile Simulation with Precise Real-to-Sim Physical Calibration", "year": 2026, "venue": "ICRA 2026", "status": "已发表", "url": "https://arxiv.org/abs/2604.27367", "summary": "可微分光学触觉仿真 + 精确 real-to-sim 物理校准。", "purpose": "视触觉仿真与真实传感器物理失配，sim-to-real 困难。", "method": "软体弹性建模 + 光学性质精确捕获的可微分触觉仿真。", "contribution": "ICRA 2026 触觉仿真基建，触觉版「Isaac Gym」的雏形。"},
         {"id": "vitacman", "name": "Vi-TacMan", "title": "Vi-TacMan: Articulated Object Manipulation via Vision and Touch", "year": 2026, "venue": "ICRA 2026", "status": "已发表", "url": "https://arxiv.org/abs/2510.06339", "summary": "视觉推断铰接运动学 + 触觉局部精修的铰接物体操作。", "purpose": "纯视觉估计铰接不精、纯触觉需要精确初始化。", "method": "视觉全局引导与触觉接触反馈分层融合的操作框架。", "contribution": "ICRA 2026 视触协同操作代表。"},
         {"id": "tactic", "name": "TACTIC", "title": "TACTIC: Tactile and Vision Conditioned Contact-Centric Control for Whole-Arm Manipulation", "year": 2026, "venue": "RSS 2026", "status": "已发表", "url": "https://arxiv.org/abs/2607.09218", "summary": "全臂接触式操作：触觉+视觉条件的接触中心控制。", "purpose": "操作不只靠手爪，手臂本体的接触也可主动利用。", "method": "以接触为中心的控制范式，触觉与视觉双条件覆盖全臂表面。", "contribution": "RSS 2026 全臂操作新范式，接触利用率的重新定义。"},
-        {"id": "semcontact", "name": "Semantic-Contact Fields", "title": "Semantic-Contact Fields for Category-Level Generalizable Tactile Tool Manipulation", "year": 2026, "venue": "RSS 2026", "status": "已发表", "url": "https://arxiv.org/abs/2602.13833", "summary": "语义接触场：类别级泛化的触觉工具操作。", "purpose": "工具操作需知「功能部位在哪、怎么接触」，类别级泛化难。", "method": "学习语义-接触联合场表示，指导同类未见工具的触觉操作。", "contribution": "RSS 2026 工具 affordance × 触觉交汇代表。"}
+        {"id": "semcontact", "name": "Semantic-Contact Fields", "title": "Semantic-Contact Fields for Category-Level Generalizable Tactile Tool Manipulation", "year": 2026, "venue": "RSS 2026", "status": "已发表", "url": "https://arxiv.org/abs/2602.13833", "summary": "语义接触场：类别级泛化的触觉工具操作。", "purpose": "工具操作需知「功能部位在哪、怎么接触」，类别级泛化难。", "method": "学习语义-接触联合场表示，指导同类未见工具的触觉操作。", "contribution": "RSS 2026 工具 affordance × 触觉交汇代表。"},
+        { id: "tacpac", name: "TacPAC", title: "TacPAC: Tactile Prediction and Real-Time Action Correction in World-Action Models for Contact-Rich Manipulation", year: 2026, venue: "arXiv 2026.09 (上交等)", status: "预印本", url: "https://arxiv.org/abs/2609.05266",
+          summary: "把触觉预测改造成对 WAM 动作的实时纠错：接触密集操作的新范式。",
+          purpose: "WAM 的未来预测以视觉为中心，看不到决定接触操作成败的局部触觉线索；直接把未来触觉当额外视角预测只能拿回约三分之一收益。",
+          method: "缓存基座模型规划动作块时依赖的预测接触与规划自身表征，触觉专家对照缓存读取新触觉图像，实时修正尚未执行的动作。",
+          contribution: "指出「预测先于执行、触觉却在执行中到达」的时序错配并给出修正机制，WAM × 触觉交叉方向的代表作。" }
       ]
     }
   ]
@@ -496,7 +501,12 @@ window.EAI_MODULES.push({
           summary: "冷静追问：WAM「先预测未来再出动作」的分解真的比直接策略更强吗？",
           purpose: "WAM 的因子化号称改善表征与数据效率，但控制能力是否真有提升缺乏对照证据。",
           method: "在世界模型策略学习与模仿式 WAM 之间做系统的能力分离对照实验。",
-          contribution: "为过热的 WAM 浪潮提供批判性基准，帮助厘清哪些收益来自分解、哪些来自数据。" }
+          contribution: "为过热的 WAM 浪潮提供批判性基准，帮助厘清哪些收益来自分解、哪些来自数据。" },
+        { id: "svwam", name: "SV-WAM", title: "SV-WAM: An Efficient Surround-View World-Action Model for End-to-End Autonomous Driving", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.03602",
+          summary: "全车六相机环视 WAM：把未来视频预测从推理输出降级为训练监督，换取可部署效率。",
+          purpose: "驾驶 WAM 推理时生成未来视频开销过大，主流做法退回单前视相机，换道/汇入等安全关键场景空间覆盖不足。",
+          method: "保留六相机环视输入；未来视频预测仅作为共享生成模型内动作学习的稠密训练监督，配合动作中心因果掩码阻断动作 token 对未来的窥视。",
+          contribution: "WAM 在自动驾驶落地的效率代表工作，「预测为训不为推」的设计对机器人侧 WAM 同样有借鉴意义。" }
       ]
     }
   ]
