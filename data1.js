@@ -266,7 +266,17 @@ window.EAI_MODULES.push({
           method: "变分随机潜变量 + Transformer 序列模型联合建模不确定性动力学，想象中训练策略。",
           contribution: "以更低训练成本取得当时无查找 MBRL 最优，成为轻量 Transformer WM 的常用基线。" },
         {"id": "eighttokens", "name": "Planning in 8 Tokens", "title": "Planning in 8 Tokens: A Compact Discrete Tokenizer for Latent World Model", "year": 2026, "venue": "CVPR 2026", "status": "已发表", "url": "https://arxiv.org/abs/2603.05438", "summary": "每帧压到 8 个 token：潜世界模型里的规划提速一个数量级。", "purpose": "潜世界模型规划仍嫌慢，token 冗余是主要瓶颈。", "method": "紧凑离散 tokenizer 将每帧观测压至约 8 token，动作条件潜模型内做近实时规划。", "contribution": "CVPR 2026 世界模型效率代表作，「token 经济学」视角。"},
-        {"id": "geoworld", "name": "GeoWorld", "title": "GeoWorld: Geometric World Models", "year": 2026, "venue": "CVPR 2026", "status": "已发表", "url": "https://arxiv.org/abs/2602.23058", "summary": "几何结构化潜空间：治能量式世界模型的欧氏漂移病。", "purpose": "欧氏潜空间忽略状态间几何/层次结构，多步预测漂移。", "method": "在能量预测式世界模型中引入几何结构化潜空间。", "contribution": "CVPR 2026 几何世界模型代表，与 GeoWAM/4DGS-WAM 空间化支线呼应。"}
+        {"id": "geoworld", "name": "GeoWorld", "title": "GeoWorld: Geometric World Models", "year": 2026, "venue": "CVPR 2026", "status": "已发表", "url": "https://arxiv.org/abs/2602.23058", "summary": "几何结构化潜空间：治能量式世界模型的欧氏漂移病。", "purpose": "欧氏潜空间忽略状态间几何/层次结构，多步预测漂移。", "method": "在能量预测式世界模型中引入几何结构化潜空间。", "contribution": "CVPR 2026 几何世界模型代表，与 GeoWAM/4DGS-WAM 空间化支线呼应。"},
+        { id: "pointzero", name: "PointZero", title: "PointZero: 3D Point Track Completion for Learning Transferable 3D Dynamics", year: 2026, venue: "arXiv 2026.09 (NVIDIA等)", status: "预印本", url: "https://arxiv.org/abs/2609.19142",
+          summary: "3D 点轨迹补全作为预训练目标：无需机器人动作标签学会可迁移的 3D 动力学。",
+          purpose: "动作条件 3D 动力学模型需要机器人动作标注，把海量网络视频排除在训练池之外。",
+          method: "给定单帧 RGB-D 与稀疏部分 3D 轨迹，预测所有观测点的未来 3D 轨迹；构建 290 万帧合成数据集（变形/铰接/刚体）从零训练。",
+          contribution: "证明自监督点轨迹补全即可产生丰富 3D 动力学先验并迁移下游，与 ModAR「点轨迹优于 RGB」的发现互相印证。" },
+        { id: "worldcontact", name: "WorldContact", title: "WorldContact: A Contact-Centric World Model for Scalable Robot Learning", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.19600",
+          summary: "接触中心的世界模型：从少量轨迹学会物体动力学，10 倍速生成训练数据。",
+          purpose: "机器人适配新物体/任务需要交互经验，真机采集昂贵；数值仿真小步长积分太慢。",
+          method: "以接触为中心建模可变形物体（购物袋等）动力学，用远大于源仿真器的时间步做状态推演，单张 H100 上比源仿真快 10 倍；生成数据直接微调 VLA 并真机部署。",
+          contribution: "「世界模型即数据工厂」的落地样本：16 个购物袋任务验证生成数据可用性。" }
       ]
     },
     {
@@ -511,7 +521,37 @@ window.EAI_MODULES.push({
           summary: "NVIDIA 的通才世界模型：把机器人动作表示为「动作流」（像素运动），用视觉接口统一世界建模与控制。",
           purpose: "异构本体/任务/环境的动作数据无法直接共享；若动作与视频共用同一「像素运动」语言，世界模型就能跨数据源学习动作后果。",
           method: "以动作流为条件在视频生成骨干上训练世界模型，支持零样本组合与数据高效适配；逆模式由期望物体流（如人类演示）预测兼容的机器人运动，动作头将潜特征映射为可执行动作，无需任务级专家演示。",
-          contribution: "机器人运动误差较动作条件基线降 90.4%、物体运动误差降 60.2%；RoboLab 上重放与真实成功率相关 r=0.96（世界模型即开环评测器）；涌现的逆模式即 WAM——与 Riemann-1.0、ZimaBlue 并列的基座候选路线。" }
+          contribution: "机器人运动误差较动作条件基线降 90.4%、物体运动误差降 60.2%；RoboLab 上重放与真实成功率相关 r=0.96（世界模型即开环评测器）；涌现的逆模式即 WAM——与 Riemann-1.0、ZimaBlue 并列的基座候选路线。" },
+        { id: "openwam", name: "OpenWAM", title: "OpenWAM: An Open, Modular Exploration Towards Systematic World-Action Model Pretraining", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.07398",
+          summary: "WAM 领域的「OpenRLAB 式」开源研究栈：把 WAM 预训练变成可控实验科学。",
+          purpose: "现有 WAM 系统全是铁板一块——生成骨干/视觉表征/架构/信息流/推理过程/数据紧耦合，说不清哪些设计真正起作用。",
+          method: "OpenWAM-Infra 把 WAM 设计空间因子化为可组合模块（统一训练/推理/部署/评测），OpenWAM-Study 在其上做对照实验：该继承什么、世界与动作学习如何交互、协同如何随规模变化。",
+          contribution: "开源 + 模块化 + 系统消融，WAM 从「各家自吹」走向可复现比较的基础设施。" },
+        { id: "xpace", name: "XPACE", title: "XPACE: Joint World and Action Modeling from Heterogeneous Experience", year: 2026, venue: "arXiv 2026.09 (CUHK等)", status: "预印本", url: "https://arxiv.org/abs/2609.17372",
+          summary: "统一具身世界模型：既是 WAM（联合预测动作与未来视频），又是世界模拟器（预测给定动作的视觉后果）。",
+          purpose: "通才机器人要会调用多样经验、选择动作并预判动作如何改变世界，但无动作视频/人类演示/机器人轨迹三类经验彼此割裂。",
+          method: "策略与模拟器共享视频骨干：无动作视频学视觉动力学，带动作标注的人类与机器人演示联合学视频+动作预测；粗到细课程逐步聚焦机器人控制。",
+          contribution: "「视频预测连接异构经验与动作学习、并自生成新经验」的代表路线，与 Hydra-0 的统一接口思想互补。" },
+        { id: "modar", name: "ModAR", title: "Modality-Autoregressive World-Action Models", year: 2026, venue: "arXiv 2026.09 (CMU等)", status: "预印本", url: "https://arxiv.org/abs/2609.17524",
+          summary: "首个多模态自回归 WAM：依次去噪深度/点轨迹/DINO 特征等多种未来模态后再预测动作。",
+          purpose: "WAM 惯例把未来预测为 RGB 图像，但深度、预训练特征、点轨迹等模态捕获几何/语义/运动信息更高效，如何组合仍是开放问题。",
+          method: "模态间自回归去噪（每种预测以先生成的模态为条件），从零训练系统研究数据配比、预测模态与 WAM 形式的影响。",
+          contribution: "发现点轨迹+DINO 特征+深度最有益、额外预测未来 RGB 无一致增益——对「WAM 必须生成视频」的默认假设的直接挑战。" },
+        { id: "mowam", name: "MoWAM", title: "MoWAM: Explicit Future Motion Prediction for Efficient World Action Models", year: 2026, venue: "arXiv 2026.09 (复旦等)", status: "预印本", url: "https://arxiv.org/abs/2609.20709",
+          summary: "用显式未来运动预测取代未来视频生成：效率与分布外鲁棒兼得。",
+          purpose: "WAM 推理时生成未来视频开销巨大；直接砍掉生成又让未来动力学只隐式存在于观测特征里，分布偏移下不够鲁棒。",
+          method: "把结构化机器人运动作为未来的紧凑抽象显式预测；Mixture-of-Transformer 训练时学未来视觉动力学、联合预测运动与动作，推理时只出运动。",
+          contribution: "与 SV-WAM 的「预测为训不为推」相互呼应：WAM 效率化的两条并行探索之一。" },
+        { id: "dido", name: "DIDO", title: "DIDO: Distilling Interaction-Centric Dynamics into One-Step Denoising for World Action Models", year: 2026, venue: "arXiv 2026.09 (华中科大等)", status: "预印本", url: "https://arxiv.org/abs/2609.15570",
+          summary: "把多步视频模型收敛后的交互动力学蒸馏进步去噪：WAM 闭环控制的延迟难题。",
+          purpose: "WAM 用视频生成预测未来，但迭代去噪延迟大；直接截断到单步会保留场景结构、丢掉对操作最关键的夹爪-物体交互动力学。",
+          method: "实证发现去噪中视觉内容收敛速率不同（背景早、交互晚）；用分布匹配蒸馏 + 交互中心监督，把多步模型收敛的动力学压进单步。",
+          contribution: "「保留交互、压缩步数」的 WAM 加速代表，与 ActionCache 等推理加速线互补。" },
+        { id: "wholebodywam", name: "WholeBodyWAM", title: "WholeBodyWAM: Learning Whole-Body World Action Models with Scalable Motion Priors", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.18197",
+          summary: "人形全身 WAM：用海量异源运动先验替代昂贵的目标机器人轨迹。",
+          purpose: "人形全身操作需要协调全身动力学，但目标机器人大规模轨迹昂贵难扩；人类与人形运动数据却取之不尽，只是不能直接当本体动作用。",
+          method: "整理 UniMotion-4K（4000+ 小时人类视频/原生 3D 运动/异构人形平台），规范化为统一运动表示，先学可迁移的全身动力学预测先验再做目标机器人训练。",
+          contribution: "「运动先验代替机器人数据」的人形 WAM 代表，数据策略上与 ZimaBlue 的视频预训练一脉相承。" }
       ]
     }
   ]
