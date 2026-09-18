@@ -241,6 +241,7 @@
           <div class="ys-label">${y}</div>
           <div class="paper-list" style="--mc:${mod.color}">${byYear[y].map(cardHtml).join("")}</div>
         </div>`).join("")}`;
+    hypBackfill();
     if (openPaperId) {
       requestAnimationFrame(() => {
         const el = $view.querySelector(".paper-detail");
@@ -257,6 +258,7 @@
       if (/arxiv\.org\/abs\//.test(p.url)) {
         links.push(`<a href="${esc(p.url.replace("/abs/", "/pdf/"))}" target="_blank" rel="noopener">PDF ↗</a>`);
         links.push(`<a href="${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener">HTML 全文 ↗</a>`);
+        links.push(`<a href="https://via.hypothes.is/${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener" title="选中正文任意段落高亮+批注，云端保存">📝 批注阅读 ↗</a>`);
       }
     }
     const scholar = `https://scholar.google.com/scholar?q=${encodeURIComponent(p.title)}`;
@@ -281,6 +283,7 @@
             <span class="lib-hint">状态与笔记只存本地浏览器，可在「📚 阅读库」导出</span>
           </div>
           <textarea class="lib-note" data-lib="${p.id}" rows="3" placeholder="📝 私人笔记：关键洞察 / 与其他工作的关系 / 待验证的问题…（失焦自动保存）">${esc(rec ? rec.note || "" : "")}</textarea>
+          ${hypSlotHtml(p, true)}
         </div>
         <div class="pd-actions">
           ${links.join("")}
@@ -697,11 +700,115 @@
     libSet(id, rec);
   }
 
+  /* ── Hypothes.is 公开批注回显（公开搜索 API，无需 key；仅回显公开标注） ── */
+  const HYP_ACCT = "acct:ljh_qh@hypothes.is";
+  const HYP_CACHE_KEY = "EAI_HYP_ANN_v1";
+  const HYP_TTL = 10 * 60 * 1000; // 10 分钟内重复打开不再请求
+
+  function hypAxId(uri) {
+    const m = /arxiv\.org\/(?:abs|html|pdf)\/([0-9]{4}\.[0-9]{4,5}(?:v\d+)?|[a-z-]+(?:\.[A-Za-z-]+)?\/[0-9]{7}(?:v\d+)?)/i.exec(uri || "");
+    return m ? m[1].replace(/v\d+$/i, "").toLowerCase() : null;
+  }
+
+  async function hypFetchAll() {
+    const now = Date.now();
+    try {
+      const c = JSON.parse(sessionStorage.getItem(HYP_CACHE_KEY));
+      if (c && c.ts && now - c.ts < HYP_TTL && c.byId) return c.byId;
+    } catch (e) {}
+    const rows = [];
+    let scroll = null;
+    for (let page = 0; page < 5; page++) { // 最多 5×200 条
+      const q = new URLSearchParams({ user: HYP_ACCT, limit: "200", sort: "created", order: "desc" });
+      if (scroll) q.set("scroll", scroll);
+      const res = await fetch("https://hypothes.is/api/search?" + q.toString());
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const data = await res.json();
+      (data.rows || []).forEach(r => { if (!r.references) rows.push(r); }); // 只要主批注，回复不列
+      scroll = data.scroll || null;
+      if (!scroll || rows.length >= (data.total || 0)) break;
+    }
+    const byId = {};
+    rows.forEach(r => {
+      const ax = hypAxId(r.uri);
+      if (!ax) return;
+      const quote = (r.target || []).map(t => (t.selector || [])
+        .filter(s => s.type === "TextQuoteSelector").map(s => s.exact).join(" ")).join(" ");
+      (byId[ax] = byId[ax] || []).push({ id: r.id, quote: quote || "", text: (r.text || "").trim(), created: r.created });
+    });
+    try { sessionStorage.setItem(HYP_CACHE_KEY, JSON.stringify({ ts: now, byId })); } catch (e) {}
+    return byId;
+  }
+
+  function hypSlotHtml(p, open) {
+    const ax = p.url && hypAxId(p.url);
+    if (!ax) return "";
+    return `<div class="hyp-slot${open ? " open" : ""}" data-ax="${esc(ax)}"></div>`;
+  }
+
+  function hypItemHtml(a) {
+    const quote = a.quote ? `<div class="hyp-quote">“${esc(a.quote.slice(0, 160))}${a.quote.length > 160 ? "…" : ""}”</div>` : "";
+    const text = a.text ? `<div class="hyp-text">${esc(a.text).replace(/\n/g, "<br>")}</div>` : "";
+    return `<div class="hyp-item">${quote}${text}<div class="hyp-meta">☁️ Hypothes.is · ${new Date(a.created).toLocaleDateString("zh-CN")}</div></div>`;
+  }
+
+  async function hypBackfill() {
+    const slots = $view.querySelectorAll(".hyp-slot");
+    const chip = document.getElementById("hyp-stat-chip");
+    const extra = document.getElementById("hyp-extra");
+    if (!slots.length && !chip && !extra) return;
+    let byId;
+    try { byId = await hypFetchAll(); }
+    catch (e) {
+      // 直连失败时退回仓库内每周归档的静态副本（可能滞后）
+      const fb = window.EAI_ANNOTATIONS && window.EAI_ANNOTATIONS.byId;
+      if (fb) byId = fb;
+      else { slots.forEach(s => s.remove()); return; }
+    }
+    slots.forEach(slot => {
+      const list = byId[slot.dataset.ax] || [];
+      if (!list.length) { slot.remove(); return; }
+      const open = slot.classList.contains("open");
+      const shown = open ? list.slice(0, 10) : list.slice(0, 2);
+      slot.innerHTML = `
+        <div class="hyp-head">📝 Hypothes.is 公开批注 <b>${list.length}</b> 条${open ? "" : ` <span class="hyp-more-hint">（显示最新 2 条）</span>`}</div>
+        ${shown.map(hypItemHtml).join("")}
+        <a class="hyp-more" href="https://hypothes.is/users/ljh_qh" target="_blank" rel="noopener">${open && list.length > 10 ? `…共 ${list.length} 条，` : ""}查看全部 ↗</a>`;
+    });
+    // 统计胶囊 + 「有批注但未入库」分组（仅阅读库页）
+    if (chip) {
+      const inLib = Object.keys(byId).filter(ax => libEntries().some(x => hypAxId(x.e.paper.url) === ax)).length;
+      chip.textContent = inLib ? `📝 在库论文云端批注 ${inLib} 篇` : "📝 云端批注 0 篇";
+      chip.style.display = "";
+    }
+    const extraEl = extra;
+    if (extraEl) {
+      const lib = libAll();
+      const listed = new Set(libEntries().map(x => hypAxId(x.e.paper.url)));
+      const orphans = allPapers.filter(x => !lib[x.paper.id] && byId[hypAxId(x.paper.url)] && !listed.has(hypAxId(x.paper.url)));
+      if (orphans.length) {
+        extraEl.innerHTML = `
+          <div class="tl-year">
+            <div class="tl-year-label">📝 有批注、未入阅读库<small>${orphans.length} 篇 · 在 Hypothes.is 里批注过但还没标记阅读状态</small></div>
+            <div class="tl-items">${orphans.map(x => `
+              <div class="tl-item" style="--mc:${x.mod.color}" data-nav="#/m/${x.mod.id}/${x.diff.id}/${x.paper.id}">
+                <div class="ti-name">${esc(x.paper.name)}
+                  <span class="pc-year">${x.paper.year} · ${esc(x.paper.venue)}</span>
+                  ${libPillHtml(x.paper.id)}
+                </div>
+                <div class="ti-path">${esc(x.mod.name)} › ${esc(x.diff.name)} · ${byId[hypAxId(x.paper.url)].length} 条批注</div>
+              </div>`).join("")}</div>
+          </div>`;
+      }
+    }
+  }
+
   function arxivLinksHtml(p) {
     if (!p.url || !/arxiv\.org\/abs\//.test(p.url)) return "";
     return `<span class="pc-links">
       <a href="${esc(p.url.replace("/abs/", "/pdf/"))}" target="_blank" rel="noopener" title="下载 PDF">PDF↗</a>
       <a href="${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener" title="arXiv HTML 全文（配合沉浸式翻译可双语阅读）">HTML↗</a>
+      <a href="https://via.hypothes.is/${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener" title="在 Hypothes.is 中打开：选中任意段落即可高亮+批注，云端保存">📝 批注</a>
     </span>`;
   }
 
@@ -719,7 +826,7 @@
     const head = `
       <div class="tl-head">
         <h2>📚 我的阅读库</h2>
-        <p>在任意论文卡片上点「＋ 标记」或在详情页选择阅读状态、写笔记，都会汇聚到这里，<b>按图谱的模块 → 难点自动归类</b>。全文阅读建议：点 HTML↗ 打开 arXiv 全文页，配合「沉浸式翻译」浏览器扩展可双语对照。数据仅存于本地浏览器，换设备请用 JSON 导出 / 导入。</p>
+        <p>在任意论文卡片上点「＋ 标记」或在详情页选择阅读状态、写笔记，都会汇聚到这里，<b>按图谱的模块 → 难点自动归类</b>。全文阅读建议：点 📝 批注 在 Hypothes.is 中打开 arXiv 全文——选中任意段落即可高亮+写批注（云端保存，跨设备同步）；配「沉浸式翻译」扩展可双语对照。你公开发布的段落批注会自动回显到本页和论文详情页；私人状态与笔记仅存本地浏览器，换设备请用 JSON 导出 / 导入。</p>
       </div>`;
 
     if (!entries.length) {
@@ -733,8 +840,10 @@
             <button class="tool-btn" id="lib-import-btn">📥 导入 JSON</button>
             <input type="file" id="lib-import-file" accept=".json,application/json" hidden>
           </div>
-        </div>`;
+        </div>
+        <div id="hyp-extra"></div>`;
       wireImport();
+      hypBackfill();
       return;
     }
 
@@ -751,6 +860,7 @@
         </div>
         <div class="ti-path">${esc(x.e.mod.name)} › ${esc(x.e.diff.name)}</div>
         ${x.rec.note ? `<div class="lib-note-text">📝 ${esc(x.rec.note)}</div>` : ""}
+        ${hypSlotHtml(x.e.paper)}
       </div>`;
 
     $view.innerHTML = head + `
@@ -759,6 +869,7 @@
         ${LIB_ST.map(s => `<span class="year-chip">${s.icon} ${s.label} <b>${cnt(s.key)}</b></span>`).join("")}
         ${Object.entries(modStat).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([m, n]) =>
           `<span class="year-chip">📚 ${esc(m)} 已读 <b>${n}</b></span>`).join("")}
+        <span class="year-chip" id="hyp-stat-chip" style="display:none"></span>
       </div>
       <div class="lib-export">
         <button class="tool-btn" id="lib-md">⬇️ Markdown 大纲</button>
@@ -778,7 +889,8 @@
             <div class="dir-group-label">${esc(arr[0].e.diff.name)}<span>${arr.length} 篇</span></div>
             <div class="tl-items">${arr.map(item).join("")}</div>`).join("")}
         </div>`;
-      }).join("")}`;
+      }).join("")}
+      <div id="hyp-extra"></div>`;
 
     document.getElementById("lib-md").addEventListener("click", () => libDownload("embodied-ai-阅读库.md", libMarkdown(entries), "text/markdown;charset=utf-8"));
     document.getElementById("lib-bib").addEventListener("click", () => libDownload("embodied-ai-阅读库.bib", libBibtex(entries), "application/x-bibtex;charset=utf-8"));
@@ -791,6 +903,7 @@
       }
     });
     wireImport();
+    hypBackfill();
   }
 
   function wireImport() {

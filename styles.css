@@ -481,3 +481,24 @@ body {
   background: #fbfaf7; border-left: 3px solid var(--mc, var(--accent));
   padding: 6px 10px; border-radius: 0 8px 8px 0;
 }
+
+/* ── Hypothes.is 批注回显 ── */
+.hyp-slot { margin-top: 8px; }
+.hyp-head {
+  font-size: 12px; font-weight: 700; color: var(--ink-2); margin-bottom: 6px;
+  display: flex; align-items: baseline; gap: 4px;
+}
+.hyp-head b { color: var(--accent); }
+.hyp-more-hint { font-weight: 400; color: var(--ink-3); }
+.hyp-item {
+  background: #fbfaf7; border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0; padding: 7px 10px; margin-bottom: 6px; font-size: 12.5px;
+}
+.hyp-quote { color: var(--ink-3); font-style: italic; margin-bottom: 4px; }
+.hyp-text { color: var(--ink); white-space: pre-wrap; }
+.hyp-meta { font-size: 11px; color: var(--ink-3); margin-top: 4px; }
+.hyp-more {
+  display: inline-block; font-size: 12px; color: var(--accent); text-decoration: none;
+  border-bottom: 1px dashed var(--accent);
+}
+.hyp-more:hover { opacity: 0.8; }
