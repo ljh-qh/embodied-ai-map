@@ -258,7 +258,7 @@
       if (/arxiv\.org\/abs\//.test(p.url)) {
         links.push(`<a href="${esc(p.url.replace("/abs/", "/pdf/"))}" target="_blank" rel="noopener">PDF ↗</a>`);
         links.push(`<a href="${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener">HTML 全文 ↗</a>`);
-        links.push(`<a href="https://via.hypothes.is/${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener" title="选中正文任意段落高亮+批注，云端保存">📝 批注阅读 ↗</a>`);
+        links.push(`<a href="${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener" title="打开 arXiv HTML 全文：装一次 Hypothes.is 扩展或书签工具，即可在侧栏选中段落高亮+批注（云端保存）">📝 批注阅读 ↗</a>`);
       }
     }
     const scholar = `https://scholar.google.com/scholar?q=${encodeURIComponent(p.title)}`;
@@ -808,7 +808,7 @@
     return `<span class="pc-links">
       <a href="${esc(p.url.replace("/abs/", "/pdf/"))}" target="_blank" rel="noopener" title="下载 PDF">PDF↗</a>
       <a href="${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener" title="arXiv HTML 全文（配合沉浸式翻译可双语阅读）">HTML↗</a>
-      <a href="https://via.hypothes.is/${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener" title="在 Hypothes.is 中打开：选中任意段落即可高亮+批注，云端保存">📝 批注</a>
+      <a href="${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener" title="打开 arXiv HTML 全文：装一次 Hypothes.is 扩展或书签工具，即可在侧栏选中段落高亮+批注（云端保存）">📝 批注</a>
     </span>`;
   }
 
@@ -826,7 +826,7 @@
     const head = `
       <div class="tl-head">
         <h2>📚 我的阅读库</h2>
-        <p>在任意论文卡片上点「＋ 标记」或在详情页选择阅读状态、写笔记，都会汇聚到这里，<b>按图谱的模块 → 难点自动归类</b>。全文阅读建议：点 📝 批注 在 Hypothes.is 中打开 arXiv 全文——选中任意段落即可高亮+写批注（云端保存，跨设备同步）；配「沉浸式翻译」扩展可双语对照。你公开发布的段落批注会自动回显到本页和论文详情页；私人状态与笔记仅存本地浏览器，换设备请用 JSON 导出 / 导入。</p>
+        <p>在任意论文卡片上点「＋ 标记」或在详情页选择阅读状态、写笔记，都会汇聚到这里，<b>按图谱的模块 → 难点自动归类</b>。全文批注请先装一次 <a href="https://chrome.google.com/webstore/detail/hypothesis-web-pdf-annota/bjfhmglciegochdpefhhlphglcehbmek" target="_blank" rel="noopener">Hypothes.is 浏览器扩展</a>（Chrome/Edge/Brave），或把 <a href="https://web.hypothes.is/start/" target="_blank" rel="noopener">书签工具 Bookmarklet</a>（Firefox/Safari）拖到书签栏；然后点论文的 📝 批注 打开 arXiv HTML 全文，侧栏里选中任意段落即可高亮+写批注（云端保存，跨设备同步），配「沉浸式翻译」扩展可双语对照。你公开发布的段落批注会自动回显到本页和论文详情页；私人状态与笔记仅存本地浏览器，换设备请用 JSON 导出 / 导入。</p>
       </div>`;
 
     if (!entries.length) {
