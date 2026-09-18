@@ -44,6 +44,7 @@
     if (parts[0] === "timeline") return renderTimeline();
     if (parts[0] === "venues") return renderVenues(parts[1] ? decodeURIComponent(parts[1]) : null);
     if (parts[0] === "rank") return renderRank(parts[1] ? decodeURIComponent(parts[1]) : null);
+    if (parts[0] === "library") return renderLibrary();
     if (parts[0] === "m" && parts[1]) {
       const mod = MODULES.find(m => m.id === parts[1]);
       if (!mod) return renderHome();
@@ -222,6 +223,8 @@
             <span class="pc-name">${esc(p.name)}</span>
             <span class="pc-badge ${badgeClass(p.status)}">${esc(p.venue)}</span>
             <span class="pc-year">${p.year}</span>
+            ${libPillHtml(p.id)}
+            ${arxivLinksHtml(p)}
           </div>
           <div class="pc-summary">${esc(p.summary)}</div>
         </div>`;
@@ -247,11 +250,13 @@
   }
 
   function detailHtml(mod, diff, p) {
+    const rec = libGet(p.id);
     const links = [];
     if (p.url) {
       links.push(`<a href="${esc(p.url)}" target="_blank" rel="noopener">查看原文 ↗</a>`);
       if (/arxiv\.org\/abs\//.test(p.url)) {
-        links.push(`<a href="${esc(p.url.replace("/abs/", "/pdf/"))}" target="_blank" rel="noopener">PDF</a>`);
+        links.push(`<a href="${esc(p.url.replace("/abs/", "/pdf/"))}" target="_blank" rel="noopener">PDF ↗</a>`);
+        links.push(`<a href="${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener">HTML 全文 ↗</a>`);
       }
     }
     const scholar = `https://scholar.google.com/scholar?q=${encodeURIComponent(p.title)}`;
@@ -267,6 +272,16 @@
         <div class="pd-section"><span class="pd-label">目的</span><p>${esc(p.purpose)}</p></div>
         <div class="pd-section"><span class="pd-label">方法</span><p>${esc(p.method)}</p></div>
         <div class="pd-section"><span class="pd-label">贡献</span><p>${esc(p.contribution)}</p></div>
+        <div class="pd-lib">
+          <div class="pd-lib-row">
+            <span class="pd-label">我的阅读</span>
+            <div class="lib-seg-group">
+              ${LIB_ST.map(s => `<button class="lib-seg ${s.cls}${rec && rec.status === s.key ? " active" : ""}" data-lib="${p.id}" data-status="${s.key}">${s.icon} ${s.label}</button>`).join("")}
+            </div>
+            <span class="lib-hint">状态与笔记只存本地浏览器，可在「📚 阅读库」导出</span>
+          </div>
+          <textarea class="lib-note" data-lib="${p.id}" rows="3" placeholder="📝 私人笔记：关键洞察 / 与其他工作的关系 / 待验证的问题…（失焦自动保存）">${esc(rec ? rec.note || "" : "")}</textarea>
+        </div>
         <div class="pd-actions">
           ${links.join("")}
           <button class="pd-close" data-nav="#/m/${mod.id}/${diff.id}">收起 ✕</button>
@@ -646,8 +661,247 @@
   subTop.addEventListener("click", () => openSubmit(""));
   document.querySelector(".toolbar").insertBefore(subTop, document.getElementById("btn-about"));
 
+  /* ── 我的阅读库（localStorage，无后端） ── */
+  const READING_KEY = "EAI_READING_v1";
+  const LIB_ST = [
+    { key: "want", label: "想读", icon: "🔖", cls: "want" },
+    { key: "reading", label: "在读", icon: "📖", cls: "reading" },
+    { key: "done", label: "已读", icon: "✅", cls: "done" }
+  ];
+
+  function libAll() {
+    try { return JSON.parse(localStorage.getItem(READING_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  function libSaveAll(o) {
+    try { localStorage.setItem(READING_KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  function libGet(id) { return libAll()[id] || null; }
+  function libSet(id, rec) {
+    const o = libAll();
+    const has = rec && (rec.status || (rec.note || "").trim());
+    if (has) o[id] = rec; else delete o[id];
+    libSaveAll(o);
+  }
+
+  function libPillHtml(id) {
+    const rec = libGet(id);
+    const st = rec && LIB_ST.find(s => s.key === rec.status);
+    return `<button class="lib-pill${st ? " " + st.cls : ""}" data-lib="${id}" title="点击切换：想读 → 在读 → 已读 → 清除">${st ? st.icon + " " + st.label : "＋ 标记"}</button>`;
+  }
+  function libCycle(id) {
+    const order = [null, "want", "reading", "done"];
+    const rec = libGet(id) || { note: "" };
+    rec.status = order[(order.indexOf(rec.status || null) + 1) % order.length];
+    rec.ts = Date.now();
+    libSet(id, rec);
+  }
+
+  function arxivLinksHtml(p) {
+    if (!p.url || !/arxiv\.org\/abs\//.test(p.url)) return "";
+    return `<span class="pc-links">
+      <a href="${esc(p.url.replace("/abs/", "/pdf/"))}" target="_blank" rel="noopener" title="下载 PDF">PDF↗</a>
+      <a href="${esc(p.url.replace("/abs/", "/html/"))}" target="_blank" rel="noopener" title="arXiv HTML 全文（配合沉浸式翻译可双语阅读）">HTML↗</a>
+    </span>`;
+  }
+
+  function libEntries() {
+    const lib = libAll();
+    return allPapers.filter(e => lib[e.paper.id]).map(e => ({ e, rec: lib[e.paper.id] }));
+  }
+
+  function renderLibrary() {
+    setCrumb([{ label: "全景", hash: "#/" }, { label: "阅读库", hash: "#/library" }]);
+    const entries = libEntries();
+    const cnt = k => entries.filter(x => x.rec.status === k).length;
+    const stLabel = k => { const s = LIB_ST.find(v => v.key === k); return s ? `${s.icon} ${s.label}` : "未标记"; };
+
+    const head = `
+      <div class="tl-head">
+        <h2>📚 我的阅读库</h2>
+        <p>在任意论文卡片上点「＋ 标记」或在详情页选择阅读状态、写笔记，都会汇聚到这里，<b>按图谱的模块 → 难点自动归类</b>。全文阅读建议：点 HTML↗ 打开 arXiv 全文页，配合「沉浸式翻译」浏览器扩展可双语对照。数据仅存于本地浏览器，换设备请用 JSON 导出 / 导入。</p>
+      </div>`;
+
+    if (!entries.length) {
+      $view.innerHTML = head + `
+        <div class="lib-empty">
+          <div class="le-icon">🔖</div>
+          <p>还没有标记任何论文。</p>
+          <p class="le-sub">去图谱里逛逛，遇到想读的论文点卡片右上角的「＋ 标记」吧。</p>
+          <div class="le-actions">
+            <button class="tool-btn primary" data-nav="#/">⌂ 浏览图谱</button>
+            <button class="tool-btn" id="lib-import-btn">📥 导入 JSON</button>
+            <input type="file" id="lib-import-file" accept=".json,application/json" hidden>
+          </div>
+        </div>`;
+      wireImport();
+      return;
+    }
+
+    const byMod = {};
+    entries.forEach(x => (byMod[x.e.mod.id] = byMod[x.e.mod.id] || []).push(x));
+    const modStat = {};
+    entries.forEach(x => { if (x.rec.status === "done") modStat[x.e.mod.name] = (modStat[x.e.mod.name] || 0) + 1; });
+
+    const item = x => `
+      <div class="tl-item" style="--mc:${x.e.mod.color}" data-nav="#/m/${x.e.mod.id}/${x.e.diff.id}/${x.e.paper.id}">
+        <div class="ti-name">${esc(x.e.paper.name)}
+          <span class="pc-year">${x.e.paper.year} · ${esc(x.e.paper.venue)}</span>
+          <span class="lib-chip ${x.rec.status || ""}">${stLabel(x.rec.status)}</span>
+        </div>
+        <div class="ti-path">${esc(x.e.mod.name)} › ${esc(x.e.diff.name)}</div>
+        ${x.rec.note ? `<div class="lib-note-text">📝 ${esc(x.rec.note)}</div>` : ""}
+      </div>`;
+
+    $view.innerHTML = head + `
+      <div class="lib-stats">
+        <span class="year-chip"><b>${entries.length}</b> 篇在库</span>
+        ${LIB_ST.map(s => `<span class="year-chip">${s.icon} ${s.label} <b>${cnt(s.key)}</b></span>`).join("")}
+        ${Object.entries(modStat).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([m, n]) =>
+          `<span class="year-chip">📚 ${esc(m)} 已读 <b>${n}</b></span>`).join("")}
+      </div>
+      <div class="lib-export">
+        <button class="tool-btn" id="lib-md">⬇️ Markdown 大纲</button>
+        <button class="tool-btn" id="lib-bib">⬇️ BibTeX（进 Zotero）</button>
+        <button class="tool-btn" id="lib-json">⬇️ JSON 备份</button>
+        <button class="tool-btn" id="lib-import-btn">📥 导入 JSON</button>
+        <input type="file" id="lib-import-file" accept=".json,application/json" hidden>
+        <button class="tool-btn lib-danger" id="lib-clear">🗑 清空</button>
+      </div>
+      ${MODULES.filter(m => byMod[m.id]).map(m => {
+        const byDiff = {};
+        byMod[m.id].forEach(x => (byDiff[x.e.diff.id] = byDiff[x.e.diff.id] || []).push(x));
+        return `
+        <div class="tl-year">
+          <div class="tl-year-label">${m.icon} ${esc(m.name)}<small>${byMod[m.id].length} 篇 · 已读 ${byMod[m.id].filter(x => x.rec.status === "done").length}</small></div>
+          ${Object.entries(byDiff).map(([did, arr]) => `
+            <div class="dir-group-label">${esc(arr[0].e.diff.name)}<span>${arr.length} 篇</span></div>
+            <div class="tl-items">${arr.map(item).join("")}</div>`).join("")}
+        </div>`;
+      }).join("")}`;
+
+    document.getElementById("lib-md").addEventListener("click", () => libDownload("embodied-ai-阅读库.md", libMarkdown(entries), "text/markdown;charset=utf-8"));
+    document.getElementById("lib-bib").addEventListener("click", () => libDownload("embodied-ai-阅读库.bib", libBibtex(entries), "application/x-bibtex;charset=utf-8"));
+    document.getElementById("lib-json").addEventListener("click", () => libDownload("embodied-ai-阅读库.json",
+      JSON.stringify({ version: 1, exported: new Date().toISOString(), papers: libAll() }, null, 2), "application/json"));
+    document.getElementById("lib-clear").addEventListener("click", () => {
+      if (confirm("确定清空全部阅读状态与笔记？此操作不可恢复（建议先导出 JSON 备份）。")) {
+        libSaveAll({});
+        renderLibrary();
+      }
+    });
+    wireImport();
+  }
+
+  function wireImport() {
+    const btn = document.getElementById("lib-import-btn");
+    const file = document.getElementById("lib-import-file");
+    if (!btn || !file) return;
+    btn.addEventListener("click", () => file.click());
+    file.addEventListener("change", () => {
+      const f = file.files[0];
+      if (!f) return;
+      const rd = new FileReader();
+      rd.onload = () => {
+        try {
+          const data = JSON.parse(rd.result);
+          const incoming = data && typeof data.papers === "object" ? data.papers : data;
+          if (!incoming || typeof incoming !== "object" || Array.isArray(incoming)) throw new Error("bad");
+          const valid = Object.entries(incoming).filter(([k, v]) => k && v && typeof v === "object" && (v.status || v.note));
+          if (!valid.length) throw new Error("empty");
+          const merged = libAll();
+          valid.forEach(([k, v]) => merged[k] = { status: v.status || null, note: v.note || "", ts: v.ts || Date.now() });
+          libSaveAll(merged);
+          alert(`导入成功：合并 ${valid.length} 条记录（已覆盖同 ID 项）`);
+          renderLibrary();
+        } catch (e) {
+          alert("导入失败：文件不是有效的阅读库 JSON（应为本站导出的备份文件）。");
+        }
+      };
+      rd.readAsText(f);
+    });
+  }
+
+  function libDownload(name, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
+  function libMarkdown(entries) {
+    const cnt = k => entries.filter(x => x.rec.status === k).length;
+    const stLabel = k => { const s = LIB_ST.find(v => v.key === k); return s ? `${s.icon} ${s.label}` : "▫️ 未标记"; };
+    const L = ["# 具身智能研究图谱 · 我的阅读库", "",
+      `> 导出于 ${new Date().toLocaleString("zh-CN")} · 共 ${entries.length} 篇（想读 ${cnt("want")} / 在读 ${cnt("reading")} / 已读 ${cnt("done")}）`, ""];
+    const byMod = {};
+    entries.forEach(x => (byMod[x.e.mod.id] = byMod[x.e.mod.id] || []).push(x));
+    MODULES.filter(m => byMod[m.id]).forEach(m => {
+      L.push(`## ${m.icon} ${m.name}`, "");
+      const byDiff = {};
+      byMod[m.id].forEach(x => (byDiff[x.e.diff.id] = byDiff[x.e.diff.id] || []).push(x));
+      Object.entries(byDiff).forEach(([did, arr]) => {
+        L.push(`### ${arr[0].e.diff.name}`, "");
+        arr.forEach(x => {
+          const p = x.e.paper;
+          L.push(`- [${stLabel(x.rec.status)}] **${p.name}** — ${p.title}（${p.venue}）`);
+          if (p.url) L.push(`  - ${p.url}`);
+          if (x.rec.note) x.rec.note.split("\n").forEach(ln => L.push(`  - 📝 ${ln}`));
+        });
+        L.push("");
+      });
+    });
+    return L.join("\n");
+  }
+
+  function libBibtex(entries) {
+    return entries.map(x => {
+      const p = x.e.paper;
+      const key = p.id.replace(/[^a-zA-Z0-9_]/g, "");
+      const title = p.title.replace(/[{}]/g, "");
+      const ax = p.url && /arxiv\.org\/abs\/([\d.]+)/.exec(p.url);
+      const st = x.rec.status ? LIB_ST.find(s => s.key === x.rec.status).label : "未标记";
+      const lines = [`@misc{${key},`, `  title = {${title}},`, `  year = {${p.year}},`];
+      if (ax) lines.push(`  eprint = {${ax[1]}},`, `  archivePrefix = {arXiv},`);
+      else if (p.url) lines.push(`  url = {${p.url}},`);
+      lines.push(`  note = {${p.venue} · 图谱: ${x.e.mod.name} › ${x.e.diff.name} · ${st}}`, `}`);
+      return lines.join("\n");
+    }).join("\n\n");
+  }
+
+  // 顶栏「阅读库」入口
+  const libTop = document.createElement("button");
+  libTop.className = "tool-btn";
+  libTop.textContent = "📚 阅读库";
+  libTop.addEventListener("click", () => nav("#/library"));
+  document.querySelector(".toolbar").insertBefore(libTop, subTop);
+
   /* ── 事件绑定 ── */
   document.body.addEventListener("click", ev => {
+    // 卡片内直达链接（PDF/HTML）：走浏览器默认行为，不触发卡片跳转
+    if (ev.target.closest("a[href]")) return;
+    // 阅读状态胶囊：点击循环 想读→在读→已读→清除，原地刷新
+    const pill = ev.target.closest(".lib-pill");
+    if (pill) {
+      libCycle(pill.dataset.lib);
+      pill.outerHTML = libPillHtml(pill.dataset.lib);
+      return;
+    }
+    // 详情页分段状态按钮
+    const seg = ev.target.closest(".lib-seg");
+    if (seg) {
+      const id = seg.dataset.lib;
+      const rec = libGet(id) || { note: "" };
+      rec.status = rec.status === seg.dataset.status ? null : seg.dataset.status;
+      rec.ts = Date.now();
+      libSet(id, rec);
+      const cur = (libGet(id) || {}).status;
+      seg.parentElement.querySelectorAll(".lib-seg").forEach(b => b.classList.toggle("active", b.dataset.status === cur));
+      return;
+    }
     const navEl = ev.target.closest("[data-nav]");
     if (navEl) {
       if (navEl.hasAttribute("data-close-overlay")) $searchOverlay.classList.add("hidden");
@@ -659,6 +913,17 @@
       return;
     }
     if (ev.target.classList.contains("overlay")) ev.target.classList.add("hidden");
+  });
+
+  // 笔记失焦自动保存
+  document.body.addEventListener("change", ev => {
+    if (ev.target.classList && ev.target.classList.contains("lib-note")) {
+      const id = ev.target.dataset.lib;
+      const rec = libGet(id) || {};
+      rec.note = ev.target.value;
+      rec.ts = Date.now();
+      libSet(id, rec);
+    }
   });
 
   document.getElementById("btn-home").addEventListener("click", () => nav("#/"));
