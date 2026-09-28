@@ -194,7 +194,17 @@ window.EAI_MODULES.push({
           summary: "把触觉预测改造成对 WAM 动作的实时纠错：接触密集操作的新范式。",
           purpose: "WAM 的未来预测以视觉为中心，看不到决定接触操作成败的局部触觉线索；直接把未来触觉当额外视角预测只能拿回约三分之一收益。",
           method: "缓存基座模型规划动作块时依赖的预测接触与规划自身表征，触觉专家对照缓存读取新触觉图像，实时修正尚未执行的动作。",
-          contribution: "指出「预测先于执行、触觉却在执行中到达」的时序错配并给出修正机制，WAM × 触觉交叉方向的代表作。" }
+          contribution: "指出「预测先于执行、触觉却在执行中到达」的时序错配并给出修正机制，WAM × 触觉交叉方向的代表作。" },
+        { id: "dextacwam", name: "DexTacWAM", title: "DexTacWAM: A Visuo-Tactile World-Action Model for Dexterous Manipulation", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.24976",
+          summary: "视觉-触觉 WAM：每个指尖独立编码，把接触动力学补进以视觉为中心的 WAM。",
+          purpose: "灵巧操作依赖的接触动力学在视觉里只是部分可观测；现有 WAM 几乎纯视觉，无法直接建模指尖接触。",
+          method: "五指触觉流逐指尖独立编码后与视觉观测融合，WAM 联合预测未来视觉-触觉状态并生成动作。",
+          contribution: "WAM × 触觉的规模化尝试（22 页 + 项目页），与 TacPAC 一起开辟多感官 WAM 支线。" },
+        { id: "tactic26", name: "TACTIC", title: "TACTIC: Understanding Tactile Encoders and Conditioning for Contact-rich Robot Manipulation Policies", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.30969",
+          summary: "触觉策略的系统消融：编码器怎么选、触觉怎么注入，一次说清。",
+          purpose: "视觉触觉传感器让端到端触觉策略爆发，但架构/数据集/评测协议五花八门，无法判断哪种设计真正有效。",
+          method: "控制变量对比触觉编码器（CV 预训练 vs 触觉专用）与条件注入方式（融合时机/通路），在接触密集操作上统一评测。",
+          contribution: "触觉策略版的「What Matters」实证研究，Sparsh 之后的选型参考。" }
       ]
     }
   ]
@@ -551,7 +561,37 @@ window.EAI_MODULES.push({
           summary: "人形全身 WAM：用海量异源运动先验替代昂贵的目标机器人轨迹。",
           purpose: "人形全身操作需要协调全身动力学，但目标机器人大规模轨迹昂贵难扩；人类与人形运动数据却取之不尽，只是不能直接当本体动作用。",
           method: "整理 UniMotion-4K（4000+ 小时人类视频/原生 3D 运动/异构人形平台），规范化为统一运动表示，先学可迁移的全身动力学预测先验再做目标机器人训练。",
-          contribution: "「运动先验代替机器人数据」的人形 WAM 代表，数据策略上与 ZimaBlue 的视频预训练一脉相承。" }
+          contribution: "「运动先验代替机器人数据」的人形 WAM 代表，数据策略上与 ZimaBlue 的视频预训练一脉相承。" },
+        { id: "internw0", name: "InternW0", title: "InternW0: A Foundational Physical World Model for Efficient Real-World Interactions", year: 2026, venue: "arXiv 2026.09 (上海AI Lab)", status: "预印本", url: "https://arxiv.org/abs/2609.27656",
+          summary: "上海 AI Lab 物理世界模型系列首作：全模态接口 + 异步多频处理 + 局部物理建模。",
+          purpose: "物理智能要求的不仅是预测世界如何演化——预测必须在世界持续变化时保持可行动。",
+          method: "全模态接口接入异构传感与指令，异步多频架构对齐不同带宽的感知与控制，部分观测下的局部物理建模保持预测的可行动性。",
+          contribution: "国内大厂入场物理世界模型的标志性技术报告，InternW 系列的基座起点。" },
+        { id: "internw0d", name: "InternW0-Δ", title: "InternW0-$\\Delta$: A World Action Model Bridging Predictive Dynamics and Actions with 20K+ Hours of Open Data", year: 2026, venue: "arXiv 2026.09 (上海AI Lab)", status: "预印本", url: "https://arxiv.org/abs/2609.31394",
+          summary: "InternW 系列的 WAM 版：异构语料上统一视觉动力学/语义/几何/运动先验，配套 20K+ 小时开放数据。",
+          purpose: "WAM 要把大规模预训练模型的视觉动力学、场景语义、几何与运动先验整合进统一的动作生成框架，但异构数据难以直接共训。",
+          method: "在异构语料（互联网视频/人类演示/机器人轨迹）上预训练统一 WAM，预测式动力学与动作生成共享骨干，随附 20K+ 小时开放数据管线。",
+          contribution: "「数据 + 模型」双开源的 WAM 基座候选，与 Hydra-0、XPACE 构成通才 WAM 第一梯队。" },
+        { id: "dualwam", name: "DualWAM", title: "DualWAM: Dual-System World Action Models for Asynchronous Global Planning and Local Refinement", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.24868",
+          summary: "双系统 WAM：慢系统全局规划、快系统局部精修，摆脱长动作块牺牲闭环响应的困局。",
+          purpose: "WAM 的未来视觉预测算力昂贵，现有做法靠长动作块摊薄推理成本，代价是闭环响应迟钝。",
+          method: "快慢双系统异步解耦：全局规划低频运行完整视频-动作联合预测，局部精修高频运行轻量动作头，按需协调。",
+          contribution: "把「快慢脑」架构引入 WAM 的代表，与 Streaming-WAM/Rolling-WAM 同属 WAM 实时化路线。" },
+        { id: "rollingwam", name: "Rolling-WAM", title: "Rolling-WAM: World Action Models with Rolling Imagination",  year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.30247",
+          summary: "滚动式想象：把视频-动作联合去噪分散到控制步之间，重规划不再整体等待。",
+          purpose: "WAM 每个重规划周期都要完成完整的视频-动作联合去噪，延迟大、动作更新慢、闭环能力受限。",
+          method: "将联合去噪过程在时间上打散滚动执行——每个控制步只推进部分去噪并产出可用动作，想象与行动重叠进行。",
+          contribution: "WAM 实时化的「流水线化」思路，与 DIDO 的蒸馏加速、DualWAM 的双系统解法三足鼎立。" },
+        { id: "patchwam", name: "PatchWAM", title: "An Action Is Worth One Patch: Unified World-Action Modeling with PatchWAM", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.25961",
+          summary: "动作即一个 patch：不设动作头/动作专家，动作与图像同炉生成。",
+          purpose: "视觉预测与动作生成是否需要分离的计算通路？现有 WAM 普遍外挂可训练动作头或动作专家桥接低维动作与高维视觉。",
+          method: "把动作编码为视觉潜空间中的一个 patch，与图像 patch 在同一生成模型内统一去噪生成，无独立动作通路。",
+          contribution: "对 WAM 架构最小主义的一次有力辩护：统一 patch 接口即可，架构层面的「奥卡姆剃刀」代表作。" },
+        { id: "wam_empirical", name: "WAM 实证研究", title: "What Matters in Designing World Action Models: An Empirical Study", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.24048",
+          summary: "WAM 设计要素的系统消融：把捆绑在一起的选择拆开逐一检验。",
+          purpose: "现有 WAM 系统把架构、训练策略等多重设计捆在一起端到端发布，无法分辨哪种选择真正贡献了性能。",
+          method: "解耦 WAM 设计空间（架构/训练策略/数据配置等），控制变量做系统对照实验，量化各要素贡献。",
+          contribution: "与 OpenWAM 呼应的 WAM 实证科学线：从「各家自吹」到「可归因比较」，选型的重要参考。" }
       ]
     }
   ]

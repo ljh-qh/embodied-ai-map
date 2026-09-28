@@ -533,7 +533,12 @@ window.EAI_MODULES.push({
           purpose: "人形示教采集需要全身-双手-视角协同，现有系统各缺一块。",
           method: "全身动位映射 + 连续灵巧手控制 + 主动视角控制的一体化遥操作系统。",
           contribution: "人形数据采集基础设施的 2026 代表，直接服务 BFM/WAM 数据管线。" },
-        {"id": "robointer", "name": "RoboInter", "title": "RoboInter: A Holistic Intermediate Representation Suite Towards Robotic Manipulation", "year": 2026, "venue": "ICLR 2026", "status": "已发表", "url": "https://arxiv.org/abs/2602.09973", "summary": "中间表示全家桶：标注工具 + 23 万轨迹稠密标注 + VQA 基准。", "purpose": "VLA 缺乏统一中间表示（几何/接触/语义）的标注与训练资产。", "method": "半自动标注流水线、稠密标注数据集、具身 VQA 基准与 plan-then-execute 框架打包。", "contribution": "ICLR 2026 表示层基建，中间表示研究的工具底座。"}
+        {"id": "robointer", "name": "RoboInter", "title": "RoboInter: A Holistic Intermediate Representation Suite Towards Robotic Manipulation", "year": 2026, "venue": "ICLR 2026", "status": "已发表", "url": "https://arxiv.org/abs/2602.09973", "summary": "中间表示全家桶：标注工具 + 23 万轨迹稠密标注 + VQA 基准。", "purpose": "VLA 缺乏统一中间表示（几何/接触/语义）的标注与训练资产。", "method": "半自动标注流水线、稠密标注数据集、具身 VQA 基准与 plan-then-execute 框架打包。", "contribution": "ICLR 2026 表示层基建，中间表示研究的工具底座。"},
+        { id: "kintsugivla", name: "Kintsugi-VLA", title: "Kintsugi-VLA: Turning Failed Robot Rollouts into Recovery Data through Interventional Recoverability", year: 2026, venue: "arXiv 2026.09 (投 ICRA 2027)", status: "预印本", url: "https://arxiv.org/abs/2609.31048",
+          summary: "金缮式数据引擎：把被丢弃的失败轨迹连干预修复成恢复数据。",
+          purpose: "仿真特权专家生成 VLA 演示的管线只保留成功轨迹，失败轨迹被丢弃——而失败暴露的恰是必须学会恢复的偏离状态。",
+          method: "对失败 rollout 建模「干预可恢复性」，把人类/专家干预的修复段转化为恢复演示，与成功演示共训。",
+          contribution: "「失败即资产」的数据观代表，与 LIBERO-RECOVER 的可靠性评测线首尾呼应。" }
       ]
     }
   ]

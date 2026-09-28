@@ -132,7 +132,12 @@ window.EAI_MODULES.push({
           summary: "把「失败后能否恢复」变成一等评测维度：从完成率转向可靠性。",
           purpose: "LIBERO 上 SOTA 已近 100% 成功，但预设初始状态下的成功不等于真实鲁棒——抓空、碰撞、物体被碰跑后的恢复能力从未被度量。",
           method: "在 LIBERO 之上系统注入抓取失败、碰撞、物体位移等扰动，构造评测恢复能力的协议并衡量主流 VLA/WAM。",
-          contribution: "直指「基准饱和」后的评测空档，与 RoboSPA 一同推动评测从成功率转向过程可靠性。" }
+          contribution: "直指「基准饱和」后的评测空档，与 RoboSPA 一同推动评测从成功率转向过程可靠性。" },
+        { id: "industrialvlabench", name: "IndustrialVLA-Bench", title: "IndustrialVLA-Bench: A Traceable Multi-Axis Evaluation of Open Robot Policy Models", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.25562",
+          summary: "VLA vs WAM 同台竞技的工业级基准：多轴可追溯评测开放策略模型。",
+          purpose: "VLA 直接映射观测-指令到动作，WAM 引入学习的世界动力学——两条路线瞄准同一批操作任务，却常在互不一致的协议下各自汇报。",
+          method: "构建可追溯的多轴工业评测（任务难度/扰动/泛化维度），统一协议下对比开源 VLA 与 WAM 策略模型。",
+          contribution: "首个把「VLA vs WAM 路线之争」摆上统一评测场的基准，路线选型的实证参考。" }
       ]
     },
     {
@@ -260,7 +265,12 @@ window.EAI_MODULES.push({
           summary: "不碰就能欺骗触觉传感器：视触觉的物理层安全攻击面。",
           purpose: "触觉传感器已是现代机器人核心部件，其物理层安全性从未被审视。",
           method: "无物理接触的外部操控（声/光/电磁等途径）干扰视触觉读数并评估对策略的影响。",
-          contribution: "开辟「触觉安全」新战场，把对抗攻击从数字像素扩展到物理触觉。" }
+          contribution: "开辟「触觉安全」新战场，把对抗攻击从数字像素扩展到物理触觉。" },
+        { id: "vlalrh", name: "VLA 线性表示", title: "The Linear Representation Hypothesis for Vision-Language-Action Models", year: 2026, venue: "arXiv 2026.09", status: "预印本", url: "https://arxiv.org/abs/2609.30996",
+          summary: "把 LLM 可解释性的「线性表示假说」推广到 VLA：动作语义也可线性读出与干预。",
+          purpose: "LRH 已是分析 LLM 内部语义的标准透镜，但具身交互的动态性给语义-动作对齐带来新挑战，VLA 侧尚缺系统检验。",
+          method: "在 VLA 内部表征中线性探测与干预动作相关语义（方向/力/接触等属性），检验动力学属性是否线性可分。",
+          contribution: "VLA 科学理解（science of VLA）线的代表：从刷榜走向机制分析，为可控性与调试打基础。" }
       ]
     }
   ]
