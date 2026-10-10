@@ -204,7 +204,12 @@ window.EAI_MODULES.push({
           summary: "触觉策略的系统消融：编码器怎么选、触觉怎么注入，一次说清。",
           purpose: "视觉触觉传感器让端到端触觉策略爆发，但架构/数据集/评测协议五花八门，无法判断哪种设计真正有效。",
           method: "控制变量对比触觉编码器（CV 预训练 vs 触觉专用）与条件注入方式（融合时机/通路），在接触密集操作上统一评测。",
-          contribution: "触觉策略版的「What Matters」实证研究，Sparsh 之后的选型参考。" }
+          contribution: "触觉策略版的「What Matters」实证研究，Sparsh 之后的选型参考。" },
+        { id: "trex", name: "T-Rex", title: "T-Rex: Tactile-Reactive Dexterous Manipulation", year: 2026, venue: "arXiv 2026.06 (CMU 等)", status: "预印本", url: "https://arxiv.org/abs/2606.17055",
+          summary: "触觉反应式灵巧操作：100 小时触觉富数据 + 变频率 MoT + 时序触觉 VQ-VAE 三件套。",
+          purpose: "VLA 要么忽略触觉、要么只用静态编码器提特征——高频触觉反应能力被数据稀缺、架构约束和静态编码三重限制锁死。",
+          method: "以基本运动原语为优先的数据高效采集配方收集 100 小时触觉富数据集；变频率 Mixture-of-Transformers 让高频触觉流与低频视觉-语言流各自按原生节奏处理；时序触觉 VQ-VAE 把触觉序列压成离散 token，不牺牲 VLA 已有能力。",
+          contribution: "12 个精细力控/可变形物体任务上平均成功率超最强基线 30%+；「触觉×VLA 反应式控制」路线的代表，与触觉 WAM 线（TacPAC/DexTacWAM 预测未来接触）正交互补——一个对当下触觉做高频响应，一个对未来触觉做预测。" }
       ]
     }
   ]
